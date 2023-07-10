@@ -1,4 +1,6 @@
 import pygame
+import random
+import math
 
 class Game: #initialization screen
     def __init__(self, width, height):
@@ -10,6 +12,11 @@ class Game: #initialization screen
         self.clock = pygame.time.Clock()
         self.running = True
         self.spaceship = Spaceship (self, 370, 515)
+
+        self.enemies = []
+        for i in range (12):
+            self.enemies.append(Enemy(self, random.randint (0,736), random.randint (30, 130)))
+
         self.background_img = pygame.image.load("spr_space_himmel.png")
 
 
@@ -41,6 +48,10 @@ class Game: #initialization screen
                         bullet.update()
                     else:
                         self.spaceship.bullets.remove(bullet)
+
+            for enemy in self.enemies:
+                enemy.update()
+                enemy.check_collision()
 
             pygame.display.update()
 
@@ -87,6 +98,33 @@ class Bullet:
         if self.y <= 0:
             self.is_fired = False
         self.game.screen.blit(self.bullet_img, (self.x, self.y))
+
+class Enemy:
+    def __init__(self, game, x,y):
+        self.x = x
+        self.y = y
+        self.change_x =5
+        self.change_y= 60
+        self.game = game
+        self.enemy_img = pygame.image.load("spr_space_enemy.png")
+
+    def check_collision(self):
+        for bullet in self.game.spaceship.bullets:
+            distance = math.sqrt(math.pow(self.x - bullet.x, 2) + math.pow(self.y - bullet.y, 2))
+            if distance < 35:
+                bullet.is_fired=False
+                self.x = random.randint(0,736)
+                self.y = random.randint(50,150)
+
+    def update(self):
+        self.x += self.change_x
+        if self.x >= 736:
+            self.y += self.change_y
+            self.change_x = -5
+        elif self.x <= 0:
+            self.y += self.change_y
+            self.change_x = 5
+        self.game.screen.blit(self.enemy_img,(self.x, self.y))
 
 if __name__=="__main__":
     game = Game(800, 600)
