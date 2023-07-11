@@ -12,6 +12,7 @@ class Game: #initialization screen
         self.clock = pygame.time.Clock()
         self.running = True
         self.spaceship = Spaceship (self, 370, 515)
+        self.score=0
 
         self.enemies = []
         for i in range (12):
@@ -52,9 +53,24 @@ class Game: #initialization screen
             for enemy in self.enemies:
                 enemy.update()
                 enemy.check_collision()
+                if enemy.y > 460:
+                    for i in self.enemies:
+                        i.y = 1000
+                    self.print_game_over()
+                    break
+            self.print_score()
 
             pygame.display.update()
 
+    def print_game_over(self):
+        go_font = pygame.font.Font("freesansbold.ttf", 64)
+        go_text = go_font.render("GAME OVER", True, (255, 255, 255))
+        self.screen.blit(go_text,(200,250))
+
+    def print_score(self):
+        score_font = pygame.font.Font("freesansbold.ttf", 24)
+        score_text = score_font.render("Punkte:" + str(self.score), True, (255, 255, 255))
+        self.screen.blit(score_text, (8, 8))
 
 class Spaceship:
     def __init__(self, game,x,y):
@@ -113,6 +129,7 @@ class Enemy:
             distance = math.sqrt(math.pow(self.x - bullet.x, 2) + math.pow(self.y - bullet.y, 2))
             if distance < 35:
                 bullet.is_fired=False
+                self.game.score+=1
                 self.x = random.randint(0,736)
                 self.y = random.randint(50,150)
 
